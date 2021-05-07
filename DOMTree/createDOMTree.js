@@ -10,6 +10,7 @@ class Node {
   isAttributes;
   isMouseDown;
   isMouseUp;
+  placeChanged;
 
   constructor(element, parent = null) {
     this.element = element;
@@ -20,7 +21,8 @@ class Node {
     this.isClicked = false;
     this.isAttributes = false;
     this.isMouseDown = false;
-    this.isMouseUp = false;
+    this.isMouseUp = true;
+    this.placeChanged = false;
   }
 }
 let canvWidth = 1300;
@@ -154,7 +156,6 @@ function draw() {
     let margen = 0;
 
     margen = canvWidth / arr.length;
-
     let numOfChild = 0;
 
     for (let n = 0; n < arr.length; n++) {
@@ -176,7 +177,11 @@ function draw() {
       // console.log(x);
       const element = arr[j];
       // element.parent.children.push(element);
-      element.x = x - margen / 2;
+      if (element.isMouseDown || element.placeChanged) {
+        // element.x = x - margen / 2;
+      } else {
+        element.x = x - margen / 2;
+      }
       element.y = y;
       if (!element.parent.isActive) {
         element.isActive = false;
@@ -463,10 +468,18 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("mousemove", (e) => {
   hover(e);
+  nodeMove(e);
 });
 
 document.addEventListener("dblclick", (e) => {
   addChild(e);
+});
+
+document.addEventListener("mousedown", (e) => {
+  mouseDown(e);
+});
+document.addEventListener("mouseup", (e) => {
+  mouseUp(e);
 });
 
 function getXY(canvas, event) {
@@ -480,19 +493,18 @@ function getXY(canvas, event) {
 function expantion(e) {
   for (let i = 0; i < array.length; i++) {
     for (let j = 0; j < array[i].length; j++) {
-      const eleNode = array[i][j];
+      const element = array[i][j];
       //for showing and hiding children
       const path = new Path2D();
 
-      if (eleNode.element.nodeType === 1) {
-        path.rect(eleNode.x - 40, eleNode.y, 10, 10);
-
+      if (element.element.nodeType === 1) {
+        path.rect(element.x - 40, element.y, 10, 10);
         const XY = getXY(canvas, e);
         if (ctx.isPointInPath(path, XY.x, XY.y)) {
-          if (eleNode.isActive) {
-            eleNode.isActive = false;
+          if (element.isActive) {
+            element.isActive = false;
           } else {
-            eleNode.isActive = true;
+            element.isActive = true;
           }
 
           ctx.clearRect(0, 0, 1300, 1000);
@@ -510,29 +522,31 @@ function hover(e) {
       const element = array[i][j];
       const path = new Path2D();
 
-      path.arc(element.x, element.y, red, 0, 2 * Math.PI);
+      if (!element.isMouseDown) {
+        path.arc(element.x, element.y, red, 0, 2 * Math.PI);
 
-      var timer = 0;
-      const XY = getXY(canvas, e);
-      if (ctx.isPointInPath(path, XY.x, XY.y)) {
-        console.log("hover");
-        clearTimeout(timer);
-        if (!element.isMouseOver) {
-          element.isMouseOver = true;
-          //console.log("not Over" + element.isMouseOver);
-          ctx.clearRect(0, 0, 1300, 1000);
-          document.removeEventListener("mousemove", hover, false);
-          draw();
+        var timer = 0;
+        const XY = getXY(canvas, e);
+        if (ctx.isPointInPath(path, XY.x, XY.y)) {
+          console.log("hover");
+          clearTimeout(timer);
+          if (!element.isMouseOver) {
+            element.isMouseOver = true;
+            //console.log("not Over" + element.isMouseOver);
+            ctx.clearRect(0, 0, 1300, 1000);
+            document.removeEventListener("mousemove", hover, false);
+            draw();
+            // e.stopImmediatePropagation();
+          }
+          timer = setTimeout(() => {
+            element.isMouseOver = false;
+            ctx.clearRect(0, 0, 1300, 1000);
+            document.removeEventListener("mousemove", hover, false);
+            draw();
+            // e.stopImmediatePropagation();
+          }, 3000);
           // e.stopImmediatePropagation();
         }
-        timer = setTimeout(() => {
-          element.isMouseOver = false;
-          ctx.clearRect(0, 0, 1300, 1000);
-          document.removeEventListener("mousemove", hover, false);
-          draw();
-          // e.stopImmediatePropagation();
-        }, 3000);
-        // e.stopImmediatePropagation();
       }
     }
   }
@@ -595,6 +609,66 @@ function atterbute(e) {
         draw();
         //e.stopImmediatePropagation();
       }
+    }
+  }
+}
+
+function mouseDown(e) {
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 0; j < array[i].length; j++) {
+      const element = array[i][j];
+      //for showing and hiding children
+      const path = new Path2D();
+      path.arc(element.x, element.y, red, 0, 2 * Math.PI);
+
+      const XY = getXY(canvas, e);
+      if (ctx.isPointInPath(path, XY.x, XY.y)) {
+        console.log("mouse down");
+        element.isMouseDown = true;
+        element.isMouseUp = false;
+      }
+    }
+  }
+}
+
+function nodeMove(e) {
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 0; j < array[i].length; j++) {
+      const element = array[i][j];
+      //for showing and hiding children
+      //const path = new Path2D();
+      //path.arc(element.x, element.y, red, 0, 2 * Math.PI);
+
+      const XY = getXY(canvas, e);
+      //if (ctx.isPointInPath(path, XY.x, XY.y)) {
+      //console.log("mouse down");
+      if (element.isMouseDown && !element.isMouseUp) {
+        console.log(XY.x);
+        element.x = XY.x;
+        ctx.clearRect(0, 0, 1300, 1000);
+        draw();
+      }
+      //element.isMouseDown = true;
+      //}
+    }
+  }
+}
+
+function mouseUp(e) {
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 0; j < array[i].length; j++) {
+      const element = array[i][j];
+      //for showing and hiding children
+      // const path = new Path2D();
+      // path.arc(element.x, element.y, red, 0, 2 * Math.PI);
+
+      // const XY = getXY(canvas, e);
+      // if (ctx.isPointInPath(path, XY.x, XY.y)) {
+      console.log("mouse Up");
+      element.isMouseDown = false;
+      element.isMouseUp = true;
+      element.placeChanged = true;
+      // }
     }
   }
 }
