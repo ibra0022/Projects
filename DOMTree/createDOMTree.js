@@ -95,10 +95,6 @@ let layer = 0;
 var canvas = document.getElementById("project");
 var ctx = canvas.getContext("2d");
 
-//window.addEventListener("load", function () {
-// ctx.fillStyle = "blue";
-// ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 //--------------body things---------------------
 
 body.x = canvWidth / 2;
@@ -235,8 +231,6 @@ function draw() {
           };
 
           for (let i = 30; i < hoverText.length; i = i + 20) {
-            // main_string.slice(i, i) + ins_string + main_string.slice(pos);
-            //console.log("asd");
             hoverText = hoverText.splice(i, 0, "\n");
           }
 
@@ -344,100 +338,6 @@ function draw() {
 
 // --------- event function for expantion --------------
 
-function atrubuteEvent(element, canvas, ctx) {
-  const path = new Path2D();
-  path.rect(element.x - 50, element.y - 20, 20, 10);
-
-  ctx.stroke(path);
-
-  ctx.fillStyle = "black";
-  ctx.font = "15px sans-serif";
-
-  ctx.fillText("...", element.x - 48, element.y - 15, 50);
-
-  if (element.isAttributes) {
-    let attributes = "";
-    for (let i = 0; i < element.element.attributes.length; i++) {
-      attributes +=
-        element.element.attributes.item(i).localName +
-        " = " +
-        element.element.attributes.item(i).value +
-        "\n";
-    }
-
-    var lines = attributes.split("\n");
-
-    ctx.beginPath();
-    ctx.rect(element.x - 150, element.y - 40, 90, lines.length * 15);
-    ctx.strokeStyle = "#c2b82b";
-    ctx.lineWidth = 5;
-    ctx.stroke();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "black";
-    ctx.fillStyle = "#40013a";
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.fillStyle = "white";
-    ctx.font = "13px sans-serif";
-    for (var i = 0; i < lines.length; i++)
-      ctx.fillText(lines[i], element.x - 148, element.y - 29 + i * 15);
-  }
-
-  //console.log("hhh");
-  document.addEventListener(
-    "click",
-    function addChild(e) {
-      const XY = getXY(canvas, e);
-      if (ctx.isPointInPath(path, XY.x, XY.y)) {
-        console.log(element.element.attributes);
-        if (element.isAttributes) {
-          element.isAttributes = false;
-        } else {
-          element.isAttributes = true;
-        }
-
-        //console.log(attributes);
-        draw();
-        e.stopImmediatePropagation();
-      }
-    },
-    false
-  );
-}
-
-function moveEvent(element, canvas, ctx, path) {
-  // if (element.isMouseDown ) {
-
-  //   var lines = attributes.split("\n");
-
-  //   ctx.fillStyle = "white";
-  //   ctx.font = "13px sans-serif";
-  //   for (var i = 0; i < lines.length; i++)
-  //     ctx.fillText(lines[i], element.x - 148, element.y - 29 + i * 15);
-  // }
-
-  //console.log("hhh");
-  document.addEventListener(
-    "drag",
-    function addChild(e) {
-      const XY = getXY(canvas, e);
-      if (ctx.isPointInPath(path, XY.x, XY.y)) {
-        console.log(element.element.attributes);
-        if (element.isMouseDown) {
-          //element.isMouseDown = false;
-          element.x = XY.x;
-        }
-
-        console.log("move");
-        draw();
-        e.stopImmediatePropagation();
-      }
-    },
-    false
-  );
-}
-
 function getXY(canvas, event) {
   //shape
   const rect = canvas.getBoundingClientRect();
@@ -536,16 +436,13 @@ function hover(e) {
             ctx.clearRect(0, 0, 1300, 1000);
             document.removeEventListener("mousemove", hover, false);
             draw();
-            // e.stopImmediatePropagation();
           }
           timer = setTimeout(() => {
             element.isMouseOver = false;
             ctx.clearRect(0, 0, 1300, 1000);
             document.removeEventListener("mousemove", hover, false);
             draw();
-            // e.stopImmediatePropagation();
           }, 3000);
-          // e.stopImmediatePropagation();
         }
       }
     }
@@ -574,10 +471,6 @@ function addChild(e) {
 
         array = new Array();
         layer = 0;
-        //isClicked = false;
-
-        //asd = true;
-        //document.removeEventListener("click", addChild, false);
         ctx.clearRect(0, 0, 1300, 1000);
         arr(body);
         draw();
@@ -635,21 +528,15 @@ function nodeMove(e) {
   for (let i = 0; i < array.length; i++) {
     for (let j = 0; j < array[i].length; j++) {
       const element = array[i][j];
-      //for showing and hiding children
-      //const path = new Path2D();
-      //path.arc(element.x, element.y, red, 0, 2 * Math.PI);
 
       const XY = getXY(canvas, e);
-      //if (ctx.isPointInPath(path, XY.x, XY.y)) {
-      //console.log("mouse down");
+
       if (element.isMouseDown && !element.isMouseUp) {
         console.log(XY.x);
         element.x = XY.x;
         ctx.clearRect(0, 0, 1300, 1000);
         draw();
       }
-      //element.isMouseDown = true;
-      //}
     }
   }
 }
@@ -658,12 +545,7 @@ function mouseUp(e) {
   for (let i = 0; i < array.length; i++) {
     for (let j = 0; j < array[i].length; j++) {
       const element = array[i][j];
-      //for showing and hiding children
-      // const path = new Path2D();
-      // path.arc(element.x, element.y, red, 0, 2 * Math.PI);
 
-      // const XY = getXY(canvas, e);
-      // if (ctx.isPointInPath(path, XY.x, XY.y)) {
       console.log("mouse Up");
       element.isMouseDown = false;
       element.isMouseUp = true;
