@@ -155,6 +155,18 @@ function draw() {
 
     margen = canvWidth / arr.length;
 
+    let numOfChild = 0;
+
+    for (let n = 0; n < arr.length; n++) {
+      const element = arr[n];
+
+      if (element.parent.isActive) {
+        numOfChild++;
+      }
+    }
+
+    margen = canvWidth / numOfChild;
+
     let x = margen;
     let y = 100 * (i + 1) + 35;
 
